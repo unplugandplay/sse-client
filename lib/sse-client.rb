@@ -62,7 +62,10 @@ module SSE
           response.read_body do |chunk|
             buffer += chunk
             while index = buffer.index(/\r\n\r\n|\n\n/)
+              p "buffer #{buffer}"
+              p index
               stream = buffer.slice!(0..index)
+              p "stream #{stream}"
               handle_stream stream
             end
           end
