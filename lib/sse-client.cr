@@ -82,16 +82,23 @@ module SSE
             if chunk.blank?
               p "sending to procs"
               handle_stream fields
-
+              fields = Hash(String, String).new("")
             else
               #p "chunk? #{chunk}"
               field, value = chunk.split(":")
-              field = field.gsub(" ") { "" }
-              value = value.gsub(" ") { "" }
+              value = value.lstrip
+
+
 
               p "field: #{field}"
               p "value: #{value}"
-              fields[field] = value if value
+              next unless value
+              if field != "data" || !fields.has_key?("data")
+                fields[field] = value
+              else
+                fields["data"] = fields["data"] + "\n" + value
+              end
+
             end
 
           end
@@ -116,7 +123,7 @@ module SSE
       # on requested we send on procs
       #p @on_procs.keys
       p !name.blank?
-      @on_procs[name].each { |message| p "on_procs #{message.inspect} #{name} !" ; message.call(data) } if !name.blank? # && @on_procs.has_key?(name)
+      @on_procs[name].each { |message| p "on_procs #{message.inspect} #{name} !" ; message.call(data) } if !name.blank?  && @on_procs.has_key?(name)
 
     end
 
